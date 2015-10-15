@@ -4,7 +4,7 @@ MAINTAINER Skylable Dev-Team <dev-team@skylable.com>
 # Install deps
 RUN yum clean all && \
     yum -y update && \
-    yum -y install epel-release && \
+    yum -y install epel-release 
 
 #COPY skylable.repo /etc/yum.repos.d/
 

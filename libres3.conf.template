@@ -1,0 +1,59 @@
+# LibreS3 configuration file
+
+# SX secret access key
+secret_key=""
+
+# Base hostname to use (equivalent of s3.amazonaws.com, host_base in .s3cfg)
+s3_host="S3_HOSTNAME"
+
+# Bind to specified port for HTTPS
+s3_https_port="8443"
+
+# The path to the SSL certificate
+s3_ssl_certificate_file="/etc/ssl/certs/libres3.pem"
+
+# The path to the SSL certificate's private key
+s3_ssl_privatekey_file="/etc/ssl/private/libres3.key"
+
+# Hostname of an SX cluster node
+sx_host="SX_CLUSTER_NAME"
+
+# Port of an SX cluster node
+sx_port="SX_PORT"
+
+# Default volume replica count
+replica_count="DEF_REPLICA"
+
+# Default volume size [K,M,G,T suffixes accepted]
+volume_size="DEF_SIZE"
+
+# Specify the file where to write the pid of the server
+pidfile="/var/run/libres3/libres3.pid"
+
+# user:group to use when dropping privileges
+run-as="nobody:nobody"
+
+# Allow creating volumes as any user (elevate to admin privileges)
+allow_volume_create_any_user="false"
+
+# Bind to specified IP (default: any IPv4/IPv6. To bind to IPv4 only use 0.0.0.0)
+s3_listen_ip=0.0.0.0
+
+# Bind to specified port
+#s3_port=
+
+# Temporary directory
+#tmpdir=
+
+# Log directory (default: /var/log/libres3)
+#logdir=
+
+# Syslog facility to use (default: log to file only)
+#syslog_facility=
+
+# Maximum number of connections to handle in parallel
+#max_parallel=
+
+# Path to mime.types file (default: /etc/libres3/mime.types)
+#mimefile=/etc/libres3/mime.types
+

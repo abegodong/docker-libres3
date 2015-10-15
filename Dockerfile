@@ -5,12 +5,12 @@ MAINTAINER Skylable Dev-Team <dev-team@skylable.com>
 RUN yum clean all && \
     yum -y update && \
     yum -y install epel-release \
-	wget sudo bwm-ng telnet && \
+	   wget sudo bwm-ng telnet && \
     yum clean all;
 
 #COPY skylable.repo /etc/yum.repos.d/
 
-RUN yum install ocaml ocaml-camlp4-devel ocaml-camlp4 && \
+RUN yum -y install ocaml ocaml-camlp4-devel ocaml-camlp4 && \
     ocaml-compiler-libs ocaml-runtime pcre-devel openssl-devel make m4 && \
     ncurses-devel git 
 RUN git clone http://git.skylable.com/libres3 && \

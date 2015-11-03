@@ -36,4 +36,4 @@ sed -i "s/^replica_count=\"DEF_REPLICA\"$/replica_count=\"$DEF_REPLICA\"/" $LIBR
 sed -i "s/^volume_size=\"DEF_SIZE\"$/volume_size=\"$DEF_SIZE\"/" $LIBRES3_CONF
 
 echo Starting LibreS3...
-libres3 start
+/usr/sbin/libres3_ocsigen --foreground

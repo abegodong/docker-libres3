@@ -21,5 +21,5 @@ COPY libres3.key /etc/ssl/private/
 COPY libres3.conf.template /etc/libres3/
 COPY run.sh /
 
-EXPOSE 8443 8008
+EXPOSE 443 80
 CMD ["/run.sh"]

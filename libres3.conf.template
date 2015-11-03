@@ -7,7 +7,9 @@ secret_key=""
 s3_host="S3_HOSTNAME"
 
 # Bind to specified port for HTTPS
-s3_https_port="8443"
+s3_https_port="443"
+# Bind to specified port for HTTP
+s3_http_port="80"
 
 # The path to the SSL certificate
 s3_ssl_certificate_file="/etc/ssl/certs/libres3.pem"

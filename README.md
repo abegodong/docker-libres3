@@ -3,27 +3,31 @@
 A ready to use LibreS3 Docker image.
 
 Stable releases are available as tags, e.g.:
-
+```bash
    docker pull skylable/libres3:release-1.1
+```
 
 Latest master is always available as:
-
+```bash
    docker pull skylable/libres3:latest
-
+```
 
 ## GETTING STARTED
 
 TL;DR
 
+```bash
    docker run -v /var/lib/docker-libres3:/data -v /path/to/etc/sxserver:/etc/sxserver:ro \
        -e S3_HOSTNAME=s3.foo.com \
        -p 8443:443 -p 8008:80 --restart=always -d --name libres3 skylable/libres3
+```
 
 By default new buckets will have replica=1 and size=1G. To change the defaults:
-
+```bash
    docker run -v /path/to/databag:/data -v /path/to/etc/sxserver:/etc/sxserver:ro \
        -e S3_HOSTNAME=s3.foo.com -e DEF_REPLICA=3 -e DEF_SIZE=100G \
        -p 8443:443 -p 8008:80 --restart=always -d --name libres3 skylable/libres3
+```
 
 or edit /var/lib/docker-libres3/etc/libres3/libres3.conf.
 
@@ -31,15 +35,15 @@ Long explanation:
 
 The first time you run this container you need to mount two volumes:
 
-    - /var/lib/docker-libres3 is where LibreS3 will store persistent data like logs, config files.
-    - /path/to/etc/sxserver is a read-only dir containing sxsetup.conf (see Skylable SX doc)
+- /var/lib/docker-libres3 is where LibreS3 will store persistent data like logs, config files.
+- /path/to/etc/sxserver is a read-only dir containing sxsetup.conf (see Skylable SX doc)
 
 After the initial config. you only need to pass -v /var/lib/docker-libres3:/data
 
 You can inspect LibreS3 logs also with: 
-
+```bash
    docker logs -f libres3
-
+```
 
 ## HOW TO CONNECT
 
@@ -63,10 +67,12 @@ See Skylable SX documentation: http://www.skylable.com/manuals/sx/manual.html
 
 ## HOW TO UPGRADE YOUR LIBRES3 CONTAINERS
 
+```bash 
    docker pull skylable/libres3
    docker stop libres3
    docker rm libres3
    docker start libres3
+```
 
 ## MORE INFO
 

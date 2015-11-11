@@ -7,33 +7,36 @@ DATABAG="/data"
 ETC_DIR="$DATABAG/etc"
 LOG_DIR="$DATABAG/logs"
 LIBRES3_CONF="$ETC_DIR/libres3/libres3.conf"
-LIBRES3_KEY="$ETC_DIR/ssl/keys/libres3.key"
+LIBRES3_KEY="$ETC_DIR/ssl/private/libres3.key"
 LIBRES3_CERT="$ETC_DIR/ssl/certs/libres3.pem"
 
-if [ -n "$S3_HOSTNAME" ] && [ -r "$SXSETUP_CONF" ]; then
-    echo Starting S3 node for $S3_HOSTNAME
-    echo $SXSETUP_CONF found
-else
-    echo "Please use this syntax:"
-    echo "docker run -v /path/to/databag:/data -v /path/to/etc/sxserver:/etc/sxserver:ro \
-       -e S3_HOSTNAME=s3.foo.com \
-       -p 8443:443 -p 8008:80 --restart=always -d --name libres3 skylable/libres3"
-    exit 1
-fi
-
-if ! [ -r "$LIBRES3_KEY" ] || ! [ -r "$LIBRES3_CERT" ]; then
-    echo Generating self-signed SSL certificate. 
-    echo If you want to use your own certificate, place the cert in $LIBRES3_CERT and the key in $LIBRES3_KEY
-    libres3_certgen $S3_HOSTNAME
-fi
-
 if ! [ -r "$LIBRES3_CONF" ]; then
-    if grep -q 'SX_USE_SSL="no"' $SXSETUP_CONF; then
-       LIBRES3_FLAGS="--no-ssl"
+    if [ -n "$S3_HOSTNAME" ] && [ -r "$SXSETUP_CONF" ]; then
+        echo First setup of LibreS3 node for $S3_HOSTNAME
+        echo $SXSETUP_CONF found
+    else
+        echo "Please use this syntax:"
+        echo "docker run -v /path/to/databag:/data -v /path/to/etc/sxserver:/etc/sxserver:ro \
+           -e S3_HOSTNAME=s3.foo.com \
+           -p 8443:443 -p 8008:80 --restart=always -d --name libres3 skylable/libres3"
+        echo This image expects sxsetup.conf to be available under /etc/sxserver.
+        exit 1
     fi
-    
+
+    # read settings from sxsetup.conf
+    . $SXSETUP_CONF
+    if [ $SX_USE_SSL = "no" ]; then 
+       LIBRES3_FLAGS="--no-ssl"
+    else
+       if ! [ -r "$LIBRES3_KEY" ] || ! [ -r "$LIBRES3_CERT" ]; then
+          echo Generating self-signed SSL certificate.
+          echo If you want to use your own certificate, place the cert in $LIBRES3_CERT and the key in $LIBRES3_KEY
+          libres3_certgen $S3_HOSTNAME
+       fi
+    fi
+
     mkdir -p $ETC_DIR/libres3
-    cp /etc/libres3/mime.types $ETC_DIR/libres3/
+    cp /etc/mime.types $ETC_DIR/libres3/
     if [ -z "$DEF_SIZE" ]; then
         DEF_SIZE=1G
         echo Using default size for new buckets of 1G. Change it with -e DEF_SIZE=100G
@@ -53,6 +56,14 @@ if ! [ -r "$LIBRES3_CONF" ]; then
         echo Error running libres3_setup
         exit 1
     fi
+    
+    # set the admin key
+    sed -i "s/^secret_key=\"\"$/secret_key=\"$SX_ADMIN_KEY\"/" $LIBRES3_CONF
+    # turn on sane defaults
+    echo "allow_public_bucket_index=true" >>$LIBRES3_CONF
+    echo "allow_list_all_volumes=true" >>$LIBRES3_CONF
+
+
 fi
 
 

@@ -3,7 +3,6 @@ MAINTAINER Skylable Dev-Team <dev-team@skylable.com>
 
 # Install deps
 RUN yum clean all && \
-    yum -y update && \
     yum -y install epel-release 
 
 #COPY skylable.repo /etc/yum.repos.d/
@@ -16,7 +15,7 @@ RUN git clone http://git.skylable.com/libres3 && \
     ./configure --prefix=/usr --sysconfdir=/data/etc --localstatedir=/var && \
     make && make install 
 
-ADD mime.types /etc/libres3/
+ADD mime.types /etc/
 
 COPY run.sh /
 

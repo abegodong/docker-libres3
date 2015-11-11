@@ -1,4 +1,0 @@
-[skylable]
-name=Skylable
-baseurl=http://cdn.skylable.com/centos/$releasever/$basearch/
-gpgcheck=0

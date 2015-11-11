@@ -1,39 +1,70 @@
-#!/bin/bash
+#!/bin/bash 
+
+set -e
 
 SXSETUP_CONF="/etc/sxserver/sxsetup.conf"
-LIBRES3_CONF="/etc/libres3/libres3.conf"
-
-if [ ! -r "$LIBRES3_CONF" ]; then
-    cp "$LIBRES3_CONF".template $LIBRES3_CONF
-fi
-
-if [ -z "$SX_PORT" ]; then
-    SX_PORT=443
-fi
+DATABAG="/data"
+ETC_DIR="$DATABAG/etc"
+LOG_DIR="$DATABAG/logs"
+LIBRES3_CONF="$ETC_DIR/libres3/libres3.conf"
+LIBRES3_KEY="$ETC_DIR/ssl/keys/libres3.key"
+LIBRES3_CERT="$ETC_DIR/ssl/certs/libres3.pem"
 
 if [ -n "$S3_HOSTNAME" ] && [ -r "$SXSETUP_CONF" ]; then
-    echo Setting S3 and SX parameters...
-    . $SXSETUP_CONF
-    sed -i "s/^secret_key=\"\"$/secret_key=\"$SX_ADMIN_KEY\"/" $LIBRES3_CONF
-    sed -i "s/^s3_host=\"S3_HOSTNAME\"$/s3_host=\"$S3_HOSTNAME\"/" $LIBRES3_CONF
-    sed -i "s/^sx_host=\"SX_CLUSTER_NAME\"$/sx_host=\"$SX_CLUSTER_NAME\"/" $LIBRES3_CONF
-    sed -i "s/^sx_port=\"SX_PORT\"$/sx_port=\"$SX_PORT\"/" $LIBRES3_CONF
+    echo Starting S3 node for $S3_HOSTNAME
+    echo $SXSETUP_CONF found
 else
-    echo "-e S3_HOSTNAME=s3.foo.com -v /path/to/sxsetup.conf:/etc/sxserver:ro are mandatory options"
+    echo "Please use this syntax:"
+    echo "docker run -v /path/to/databag:/data -v /path/to/etc/sxserver:/etc/sxserver:ro \
+       -e S3_HOSTNAME=s3.foo.com \
+       -p 8443:443 -p 8008:80 --restart=always -d --name libres3 skylable/libres3"
     exit 1
 fi
 
-if [ -z "$DEF_SIZE" ]; then
-    DEF_SIZE=1G
-    echo Using default size for new buckets of 1G. Change it with -e DEF_SIZE=100G
-fi
-if [ -z "$DEF_REPLICA" ]; then
-    DEF_REPLICA=1
-    echo Using default replica count of 1. Change it with -e DEF_REPLICA=3
+if ! [ -r "$LIBRES3_KEY" ] || ! [ -r "$LIBRES3_CERT" ]; then
+    echo Generating self-signed SSL certificate. 
+    echo If you want to use your own certificate, place the cert in $LIBRES3_CERT and the key in $LIBRES3_KEY
+    libres3_certgen $S3_HOSTNAME
 fi
 
-sed -i "s/^replica_count=\"DEF_REPLICA\"$/replica_count=\"$DEF_REPLICA\"/" $LIBRES3_CONF
-sed -i "s/^volume_size=\"DEF_SIZE\"$/volume_size=\"$DEF_SIZE\"/" $LIBRES3_CONF
+if ! [ -r "$LIBRES3_CONF" ]; then
+    if grep -q 'SX_USE_SSL="no"' $SXSETUP_CONF; then
+       LIBRES3_FLAGS="--no-ssl"
+    fi
+    
+    mkdir -p $ETC_DIR/libres3
+    cp /etc/libres3/mime.types $ETC_DIR/libres3/
+    if [ -z "$DEF_SIZE" ]; then
+        DEF_SIZE=1G
+        echo Using default size for new buckets of 1G. Change it with -e DEF_SIZE=100G
+    fi
+    if [ -z "$DEF_REPLICA" ]; then
+        DEF_REPLICA=1
+        echo Using default replica count of 1. Change it with -e DEF_REPLICA=3
+    fi
+    libres3_setup --s3-host $S3_HOSTNAME \
+        --s3-http-port 80 \
+        --s3-https-port 443 \
+        --default-replica $DEF_REPLICA \
+        --default-volume-size $DEF_SIZE \
+        --sxsetup-conf $SXSETUP_CONF \
+        --batch $LIBRES3_FLAGS
+    if [ $? -ne 0 ]; then
+        echo Error running libres3_setup
+        exit 1
+    fi
+fi
+
+
+# store logs on permanent storage
+mkdir -p $LOG_DIR
+chown nobody $LOG_DIR
+sed -i "s,^#logdir=,logdir=$LOG_DIR," $LIBRES3_CONF
+
+# sends errors to docker logs
+touch $LOG_DIR/errors.log
+tail -F $LOG_DIR/errors.log &
 
 echo Starting LibreS3...
 /usr/sbin/libres3_ocsigen --foreground
+

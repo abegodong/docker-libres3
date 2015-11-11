@@ -45,15 +45,23 @@ if ! [ -r "$LIBRES3_CONF" ]; then
         DEF_REPLICA=1
         echo Using default replica count of 1. Change it with -e DEF_REPLICA=3
     fi
+
+    # FIXME: workaround to force LibreS3 to run as nobody/nobody, no matter what sxsetup.conf says
+    umask 077
+    SXSETUP_TEMP=$(mktemp)
+    cp $SXSETUP_CONF $SXSETUP_TEMP
+    sed -i 's,^SX_SERVER_GROUP=".*$,SX_SERVER_GROUP="nobody",' $SXSETUP_TEMP
+
+    # initial setup of LibreS3
     libres3_setup --s3-host $S3_HOSTNAME \
         --s3-http-port 80 \
         --s3-https-port 443 \
         --default-replica $DEF_REPLICA \
         --default-volume-size $DEF_SIZE \
-        --sxsetup-conf $SXSETUP_CONF \
+        --sxsetup-conf $SXSETUP_TEMP \
         --batch $LIBRES3_FLAGS
-    if [ $? -ne 0 ]; then
-        echo Error running libres3_setup
+    if ! [ -r $LIBRES3_CONF  ]; then
+        echo Error running libres3_setup: cannot find $LIBRES3_CONF
         exit 1
     fi
     

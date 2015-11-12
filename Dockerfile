@@ -11,8 +11,8 @@ RUN yum -y install ocaml ocaml-camlp4-devel ocaml-camlp4 \
     ocaml-compiler-libs ocaml-runtime pcre-devel openssl-devel make m4 \
     ncurses-devel git openssl
 RUN git clone http://git.skylable.com/libres3 && \
-    git checkout 1.1 && \
     cd libres3/ && \
+    git checkout 1.1 && \
     ./configure --prefix=/usr --sysconfdir=/data/etc --localstatedir=/var && \
     make && make install 
 

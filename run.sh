@@ -70,7 +70,8 @@ if ! [ -r "$LIBRES3_CONF" ]; then
     # turn on sane defaults
     echo "allow_public_bucket_index=true" >>$LIBRES3_CONF
     echo "allow_list_all_volumes=true" >>$LIBRES3_CONF
-
+    # match nginx default
+    echo "max_parallel=6144" >>$LIBRES3_CONF
 
 fi
 

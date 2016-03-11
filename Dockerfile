@@ -3,17 +3,16 @@ MAINTAINER Skylable Dev-Team <dev-team@skylable.com>
 
 # Install deps
 RUN yum clean all && \
-    yum -y install epel-release 
-
-#COPY skylable.repo /etc/yum.repos.d/
-
-RUN yum -y install ocaml ocaml-camlp4-devel ocaml-camlp4 \
+    yum -y install epel-release && \
+    yum -y install ocaml ocaml-camlp4-devel ocaml-camlp4 \
     ocaml-compiler-libs ocaml-runtime pcre-devel openssl-devel make m4 \
-    which ncurses-devel git openssl
+    which ncurses-devel git openssl && \
+    yum clean all
 RUN git clone http://git.skylable.com/libres3 && \
     cd libres3/ && \
     ./configure --prefix=/usr --sysconfdir=/data/etc --localstatedir=/var && \
-    make && make install 
+    make && make install && \
+    cd .. && rm -rf libres3
 
 ADD mime.types /etc/
 

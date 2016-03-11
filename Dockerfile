@@ -6,7 +6,7 @@ RUN yum clean all && \
     yum -y install epel-release && \
     yum -y install ocaml ocaml-camlp4-devel ocaml-camlp4 \
     ocaml-compiler-libs ocaml-runtime pcre-devel openssl-devel make m4 \
-    which ncurses-devel git openssl libev && \
+    which ncurses-devel git openssl libev-devel && \
     yum clean all && \
     git clone http://git.skylable.com/libres3 && \
     cd libres3/ && \

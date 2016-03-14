@@ -14,7 +14,7 @@ RUN yum clean all && \
     make && make install && \
     cd .. && rm -rf libres3 && \
     yum remove -y ocaml ocaml-camlp4-devel ocaml-camlp4 \
-    ocaml-compiler-libs ocaml-runtime pcre-devel openssl-devel make m4 \
+    ocaml-compiler-libs ocaml-runtime pcre-devel openssl-devel m4 \
     which ncurses-devel git libev-devel && \
     yum autoremove -y && \
     yum clean all

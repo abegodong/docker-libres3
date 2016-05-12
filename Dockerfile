@@ -10,6 +10,7 @@ RUN yum clean all && \
     yum clean all && \
     git clone http://git.skylable.com/libres3 && \
     cd libres3/ && \
+    git checkout 1.3 && \
     ./configure --prefix=/usr --sysconfdir=/data/etc --localstatedir=/var && \
     make && make install && \
     cd .. && rm -rf libres3 && \
